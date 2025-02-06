@@ -1,3 +1,6 @@
+#Ignorar fichero de notal locales
+notas
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
