@@ -16,12 +16,15 @@ Entorno
     conda activate SecureShareModel
 
 Dependencias:
-    conda install pillow nomkl open3d
+    conda install pillow 
 
 Compilar
     conda install pyinstaller
     Linux:
-        pyinstaller --onefile --windowed --clean --strip --optimize "2" --exclude-module=numpy --hidden-import PIL._tkinter_finder --add-data "SSMLogo.png:." SecureShareModelViewer.py
+        #pyinstaller --onefile --windowed --clean --strip --optimize "2" --exclude-module=numpy --hidden-import PIL._tkinter_finder --add-data "SSMLogo.png:." SecureShareModelViewer.py
+        pyinstaller --noconfirm --onefile --windowed --clean --optimize "2" --strip --add-data "SSMLogo.png:."  SecureShareModelViewer.py
+        
+        
     Windows
         pyinstaller --onefile  --windowed --clean --optimize "2" --exclude-module=numpy  --add-data "SSMLogo.png;." SecureShareModelViewer.py
 
