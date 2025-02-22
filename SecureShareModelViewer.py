@@ -7,28 +7,25 @@ Author: Impresión 3D Móstoles
 WEB Page: https://mtr.bio/i3dm
 Email: impresion3dmostoles@gmail.com
 Date: 01/02/2025
-Version: 0.3
+Version: 0.10
 License: AGPL v3
 
 *** TIPs ***
-Entorno
+Entorno:
     conda create --name SecureShareModel python=3.11
     conda activate SecureShareModel
 
 Dependencias:
-    conda install pillow 
-
-Compilar
+    Linux:
+        conda install pillow
+    Windows:
+        conda install pillow
+Compilar:
     conda install pyinstaller
     Linux:
         #pyinstaller --onefile --windowed --clean --strip --optimize "2" --exclude-module=numpy --hidden-import PIL._tkinter_finder --add-data "SSMLogo.png:." SecureShareModelViewer.py
-        pyinstaller --noconfirm --onefile --windowed --clean --optimize "2" --strip --add-data "SSMLogo.png:."  SecureShareModelViewer.py
-        
-        
-    Windows
+    Windows:
         pyinstaller --onefile  --windowed --clean --optimize "2" --exclude-module=numpy  --add-data "SSMLogo.png;." SecureShareModelViewer.py
-
-
 """
 
 #TO-DO:
