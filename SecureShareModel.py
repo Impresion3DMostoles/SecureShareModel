@@ -7,7 +7,7 @@ Author: Impresión 3D Móstoles
 WEB Page: https://mtr.bio/i3dm
 Email: impresion3dmostoles@gmail.com
 Date: 01/02/2025
-Version: 0.10
+Version: 0.20
 License: AGPL v3
 
 *** TIPs ***
@@ -28,6 +28,11 @@ Compilar:
         Default: pyinstaller --noconfirm --onefile --windowed --clean --optimize "2" --add-data "SSMLogo.png;."  SecureShareModel.py
         Reducido: pyinstaller SecureShareModel.spec
 """
+#TO-DO: 
+# No agrandar ventana si finalmente no se selecciona un SSM
+# Hacer zoom en el visualizador
+# Revisar texto de ayuda
+# Agregar icono al ejecutable
 
 import os
 import sys
@@ -38,21 +43,22 @@ from tkinter import filedialog, Canvas, Menu, Toplevel,PhotoImage
 import open3d as o3d
 import math
 
-#TO-DO: Revisar texto de ayuda
-
+#Eliminar directorio temporal después de usar
 def remove_folder(folder_name):
     for root, dirs, files in os.walk(folder_name, topdown=False):
         for file in files:
             os.remove(os.path.join(root, file))
         for dir in dirs:
             os.rmdir(os.path.join(root, dir))
-    os.rmdir(folder_name)  # Finalmente elimina la carpeta principal
+    os.rmdir(folder_name)
 
+#Diálogo selección fichero STL
 def select_stl_file():
         file_path = filedialog.askopenfilename(title="Seleccionar archivo STL", filetypes=[("STL Files", "*.stl")])
         if file_path:
             return load_stl(file_path)
-        
+
+#Carga de modelo y conversión a mesh        
 def load_stl(stl_path):
     try:
         stl_model = o3d.io.read_triangle_mesh(stl_path)
@@ -63,6 +69,7 @@ def load_stl(stl_path):
     except:
         return None, None
 
+#Empaquetar imagenes en fichero .ssm
 def save_images_to_ssm(folder_name):    
     images_data = []
     
@@ -76,10 +83,10 @@ def save_images_to_ssm(folder_name):
     ssm_file = f"{os.path.splitext(os.path.basename(folder_name))[0]}.ssm"
     with open(ssm_file, 'wb') as f:
         pickle.dump(images_data, f)
-    
-    print(f"Imágenes empaquetadas en: {ssm_file}")
+
     remove_folder(folder_name)
 
+#Método pricipal de generación .ssm
 def generate():
     stl_model, path = select_stl_file()
 
@@ -88,7 +95,6 @@ def generate():
     stl_model.compute_vertex_normals()
     stl_model.paint_uniform_color([0, 1, 0])
 
-    # Convertir los vértices a una lista estándar de Python
     vertices = list(stl_model.vertices)
     
     # Calcular el centroide (promedio de las coordenadas)
@@ -99,7 +105,7 @@ def generate():
     vis.add_geometry(stl_model)
 
     vis.get_render_option().background_color = [0, 0, 1]
-    vis.get_view_control().set_zoom(1)  # Ajusta el zoom para alejar la vista
+    vis.get_view_control().set_zoom(1) 
 
     for k in range(8):  # Rotación en Z (cada 45°)
         stl_model.translate([-centroid[0], -centroid[1], -centroid[2]])
@@ -134,7 +140,6 @@ def generate():
 
     save_images_to_ssm(path)
 
-
 class SecureShareModel(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -146,19 +151,13 @@ class SecureShareModel(tk.Tk):
     def init_ui(self):
         self.title("Secure Share Model - #I3DM")
         self.geometry("500x500")
-        # Ruta del logo
+        #Carga específica para ejecución desde fuentes o compilado.
         if getattr(sys, 'frozen', False):
-            # Si estamos ejecutando desde el ejecutable
             self.logo_path = os.path.join(sys._MEIPASS, "SSMLogo.png")
         else:
-            # Si estamos ejecutando desde el script fuente
             self.logo_path = "SSMLogo.png"
-
-        try:
-            icon_image = PhotoImage(file=self.logo_path)
-            self.iconphoto(True, icon_image)
-        except Exception as e:
-            print(f"Error al cargar el icono: {e}")
+        icon_image = PhotoImage(file=self.logo_path)
+        self.iconphoto(True, icon_image)
 
         self.menu_bar = Menu(self)
         self.config(menu=self.menu_bar)
@@ -175,6 +174,7 @@ class SecureShareModel(tk.Tk):
         self.canvas = Canvas(self, width=1200, height=800)
         self.canvas.pack()
 
+        #Captura de eventos para movimiento con teclas en ventana TK
         self.bind("<Left>", lambda event: self.change_image("left"))
         self.bind("<Right>", lambda event: self.change_image("right"))
         self.bind("<Up>", lambda event: self.change_image("up"))
@@ -196,14 +196,12 @@ class SecureShareModel(tk.Tk):
         
         help_window.bind('<Escape>', lambda event: help_window.destroy())
 
-        try:
-            image = Image.open(self.logo_path)
-            logo_photo = ImageTk.PhotoImage(image)
-            logo_label = tk.Label(help_window, image=logo_photo)
-            logo_label.image = logo_photo  # Mantener una referencia para evitar que se elimine
-            logo_label.grid(row=1, column=0, padx=10, pady=10, sticky="nw")
-        except Exception as e:
-            print(f"Error al cargar el logo: {e}")
+        image = Image.open(self.logo_path)
+        logo_photo = ImageTk.PhotoImage(image)
+        logo_label = tk.Label(help_window, image=logo_photo)
+        logo_label.image = logo_photo
+        logo_label.grid(row=1, column=0, padx=10, pady=10, sticky="nw")
+
         
         help_text = """- Cargar SSM: Abre un archivo SSM.\n- Usa las flechas y W/S\n para rotar la imagen.\n- Pulsa Esc para salir."""
         help_label = tk.Label(help_window, text=help_text, justify="left", padx=10, pady=10)
@@ -213,13 +211,14 @@ class SecureShareModel(tk.Tk):
         help_window.grid_columnconfigure(0, weight=1)
         help_window.grid_columnconfigure(1, weight=3)
 
+    #Diálogo para la selección de .ssm y extracción de imágenes.,Carga la imagen con coordenadas 0.0.0
     def load_images(self):
         file_path = filedialog.askopenfilename(title="Seleccionar archivo ssm", filetypes=[("Share Model", "*.ssm")])
         self.geometry("1200x800")
         if file_path:
             self.extract_images(file_path)
             self.load_image()
-    
+    #Extraer las imágenes en un directorio temporal
     def extract_images(self, ssm_file):
         self.folder_name = os.path.join(os.path.dirname(ssm_file), os.path.splitext(os.path.basename(ssm_file))[0])
         os.makedirs(self.folder_name, exist_ok=True)
@@ -231,9 +230,11 @@ class SecureShareModel(tk.Tk):
             with open(image_path, 'wb') as img_file:
                 img_file.write(image_data)
     
+    #Generar el nombre de la imagen necesaria para las coordenadas actuales
     def get_image_filename(self):
         return os.path.join(self.folder_name, f"tmpModel_{self.x:03d}{self.y:03d}{self.z:03d}.png")
 
+    #Carga de la imagen actual
     def load_image(self):
         filename = self.get_image_filename()
         try:
@@ -245,6 +246,7 @@ class SecureShareModel(tk.Tk):
         except Exception as e:
             print(f"No se pudo cargar la imagen: {filename}, error: {e}")
     
+    #Cambia las coordenadas según en respuesta al evento de captura de teclas
     def change_image(self, direction):
         if direction == "left":
             self.y = (self.y + 45) % 360
@@ -254,12 +256,13 @@ class SecureShareModel(tk.Tk):
             self.x = (self.x - 45) % 360
         elif direction == "down":
             self.x = (self.x + 45) % 360
-        elif direction == "w":  # Aumentar rotación en Z
+        elif direction == "w":
             self.z = (self.z + 45) % 360
-        elif direction == "s":  # Disminuir rotación en Z
+        elif direction == "s":
             self.z = (self.z - 45) % 360
         self.load_image()
 
+    #Cierra la ventana y elimina el directorio temporal
     def quit_viewer(self):
         if self.folder_name:
             remove_folder(self.folder_name)
