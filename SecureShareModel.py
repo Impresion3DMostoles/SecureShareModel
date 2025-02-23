@@ -36,6 +36,8 @@ from tkinter import filedialog, Canvas, Menu, Toplevel,PhotoImage
 import open3d as o3d
 import math
 import tkinter.font as tkFont
+import base64
+import lzma
 
 #Eliminar directorio temporal después de usar
 def remove_folder(folder_name):
@@ -71,11 +73,13 @@ def save_images_to_ssm(folder_name):
         if image_file.endswith(f".png"):
             file_path = os.path.join(folder_name, image_file)
             with open(file_path, 'rb') as img_file:
-                image_data = img_file.read()
+                image_data = base64.b64encode(img_file.read()).decode('utf-8')
             images_data.append((image_file, image_data))
 
     ssm_file = f"{os.path.splitext(os.path.basename(folder_name))[0]}.ssm"
-    with open(ssm_file, 'wb') as f:
+
+    
+    with lzma.open(ssm_file, 'wb',preset=9) as f:
         pickle.dump(images_data, f)
 
     remove_folder(folder_name)
@@ -226,12 +230,12 @@ Web: https://mtr.bio/i3dm"""
         self.folder_name = os.path.join(os.path.dirname(ssm_file), os.path.splitext(os.path.basename(ssm_file))[0])
         os.makedirs(self.folder_name, exist_ok=True)
 
-        with open(ssm_file, 'rb') as f:
+        with lzma.open(ssm_file, 'rb') as f:
             images_data = pickle.load(f)
         for image_name, image_data in images_data[0:]:
             image_path = os.path.join(self.folder_name, image_name)
             with open(image_path, 'wb') as img_file:
-                img_file.write(image_data)
+                img_file.write(base64.b64decode(image_data))
     
     #Generar el nombre de la imagen necesaria para las coordenadas actuales
     def get_image_filename(self):

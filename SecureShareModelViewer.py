@@ -34,6 +34,8 @@ import tkinter as tk
 from tkinter import filedialog, Canvas, Menu, Toplevel, PhotoImage
 import tkinter.font as tkFont
 import sys
+import base64
+import lzma
 
 def remove_folder(folder_name):
     for root, dirs, files in os.walk(folder_name, topdown=False):
@@ -132,12 +134,12 @@ Web: https://mtr.bio/i3dm"""
         self.folder_name = os.path.join(os.path.dirname(ssm_file), os.path.splitext(os.path.basename(ssm_file))[0])
         os.makedirs(self.folder_name, exist_ok=True)
 
-        with open(ssm_file, 'rb') as f:
+        with lzma.open(ssm_file, 'rb') as f:
             images_data = pickle.load(f)
         for image_name, image_data in images_data[0:]:
             image_path = os.path.join(self.folder_name, image_name)
             with open(image_path, 'wb') as img_file:
-                img_file.write(image_data)
+                img_file.write(base64.b64decode(image_data))
 
     #Generar el nombre de la imagen necesaria para las coordenadas actuales
     def get_image_filename(self):
