@@ -1,10 +1,7 @@
 """
 Program Name: Secure Share Model
-Description: Este programa permite distribuir de forma segura modelos 3D a clientes. 
-             Lee un archivo STL y genera un archivo SSM con imágenes estáticas, 
-             simulando un rotado del modelo en dos ejes, sin incluir información 3D. 
 Author: Impresión 3D Móstoles
-WEB Page: https://mtr.bio/i3dm
+Social Media: https://mtr.bio/i3dm
 Email: impresion3dmostoles@gmail.com
 Date: 01/02/2025
 Version: 0.20
@@ -20,15 +17,15 @@ Dependencias:
         conda install pillow
     Windows:
         conda install pillow
+        
 Compilar:
     conda install pyinstaller
     Linux:
         pyinstaller --onefile --windowed --clean --strip --optimize "2" --exclude-module=numpy --hidden-import PIL._tkinter_finder --add-data "SSMLogo.png:." SecureShareModelViewer.py
     Windows:
-        pyinstaller --onefile  --windowed --clean --optimize "2" --exclude-module=numpy  --add-data "SSMLogo.png;." SecureShareModelViewer.py
+        pyinstaller --onefile  --windowed --clean --optimize "2" --exclude-module=numpy  --add-data "SSMLogo.png;." --icon SSMLogo.png  SecureShareModelViewer.py
+        Reducido: pyinstaller SecureShareModelViewer.spec
 """
-#TO-DO: 
-# Agregar icono al ejecutable (no compatible con Linux)
 
 import os
 from PIL import Image, ImageTk
@@ -110,10 +107,9 @@ class SecureShareModelViewer(tk.Tk):
         logo_label.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
         
         # Columna de la derecha: Instrucciones sobre el funcionamiento
-        help_text = """- El menú 'Carga SSM' abre el diseño.\n
-- Los cursores y 'W/S' rotan la pieza en los ejes XYZ.\n
+        help_text = """- Los cursores y 'W/S' rotan la pieza en los ejes XYZ.\n
 - La rueda del ratón hace zoom.\n
-- [Esc] cierra la aplicación.\n\n\n\n\n\n
+- [Esc] cierra la aplicación.\n\n\n\n
 Autor: Impresión 3D Móstoles\n
 Contacto: impresion3dmostoles@gmail.com\n
 Web: https://mtr.bio/i3dm"""
