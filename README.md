@@ -24,9 +24,9 @@ This way, you can share the model with clients without needing to send the origi
 The viewer provides an interactive experience, allowing users to examine the images and get the sensation of viewing the complete 3D model. The user has control over rotation and perspective through the pre-rendered images.
 
 ## Información Técnica
-    Developed in **Python** based on the **Open3D** library.
-    Virtual environment with **miniconda**.
-    Binaries generated with **pyInstaller**.
+- Developed in **Python** based on the **Open3D** library.
+- Virtual environment with **miniconda**.
+- Binaries generated with **pyInstaller**.
 
 ## Compilación
 The Python compilations include all dependencies in the package. To reduce the size, modified .spec files are provided for cleaning unused libraries.
@@ -37,6 +37,7 @@ The Python compilations include all dependencies in the package. To reduce the s
 - **Author:** [Impresión 3D Móstoles](https://github.com/Impresion3DMostoles)
 - **WEB Page:** [https://mtr.bio/i3dm](https://mtr.bio/i3dm)
 - **Email:** impresion3dmostoles@gmail.com
+- **Diseños:** https://makerworld.com/en/@impresion3dmost
 - **License:** AGPL v3
 - *Modelo tetéra: By zzubnik (Nik Clark, Norwich, UK) - https://www.thingiverse.com/thing:852078, CC0, https://commons.wikimedia.org/w/index.php?curid=67029126*
 - *Limpieza de librerías: Por [choice17](https://github.com/choice17) en el comentario [#406575832](https://github.com/pyinstaller/pyinstaller/issues/2270#issuecomment-406575832)*
