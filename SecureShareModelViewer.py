@@ -23,24 +23,21 @@ Dependencias:
 Compilar:
     conda install pyinstaller
     Linux:
-        #pyinstaller --onefile --windowed --clean --strip --optimize "2" --exclude-module=numpy --hidden-import PIL._tkinter_finder --add-data "SSMLogo.png:." SecureShareModelViewer.py
+        pyinstaller --onefile --windowed --clean --strip --optimize "2" --exclude-module=numpy --hidden-import PIL._tkinter_finder --add-data "SSMLogo.png:." SecureShareModelViewer.py
     Windows:
         pyinstaller --onefile  --windowed --clean --optimize "2" --exclude-module=numpy  --add-data "SSMLogo.png;." SecureShareModelViewer.py
 """
 #TO-DO: 
-# No agrandar ventana si finalmente no se selecciona un SSM
-# Hacer zoom en el visualizador
-# Revisar texto de ayuda
-# Agregar icono al ejecutable
+# Agregar icono al ejecutable (no compatible con Linux)
 
 import os
-from PIL import Image,ImageTk
+from PIL import Image, ImageTk
 import pickle
 import tkinter as tk
-from tkinter import filedialog, Canvas, Menu, Toplevel,PhotoImage
+from tkinter import filedialog, Canvas, Menu, Toplevel, PhotoImage
+import tkinter.font as tkFont
 import sys
 
-#Eliminar directorio temporal después de usar
 def remove_folder(folder_name):
     for root, dirs, files in os.walk(folder_name, topdown=False):
         for file in files:
@@ -54,12 +51,17 @@ class SecureShareModelViewer(tk.Tk):
         super().__init__()
         self.folder_name = None
         self.x, self.y, self.z = 0, 0, 0
+        self.zoom_factor = 1.0
         self.logo_path = None
+        self.events= False
         self.init_ui()
 
     def init_ui(self):
         self.title("Secure Share Model - #I3DM")
-        self.geometry("500x500")
+        self.canvas = Canvas(self, width=1200, height=800)
+        self.canvas.pack()
+        self.resizable(False, False)
+
         #Carga específica para ejecución desde fuentes o compilado.
         if getattr(sys, 'frozen', False):
             self.logo_path = os.path.join(sys._MEIPASS, "SSMLogo.png")
@@ -76,12 +78,9 @@ class SecureShareModelViewer(tk.Tk):
         file_menu.add_separator()
         file_menu.add_command(label="Cerrar", command=self.quit_viewer)
         self.menu_bar.add_cascade(label="Archivo", menu=file_menu)
-
         self.menu_bar.add_command(label="Ayuda", command=self.show_help)
 
-        self.canvas = Canvas(self, width=1200, height=800)
-        self.canvas.pack()
-
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
         #Captura de eventos para movimiento con teclas en ventana TK
         self.bind("<Left>", lambda event: self.change_image("left"))
         self.bind("<Right>", lambda event: self.change_image("right"))
@@ -91,39 +90,44 @@ class SecureShareModelViewer(tk.Tk):
         self.bind("<s>", lambda event: self.change_image("s"))
         self.bind("<Escape>", lambda event: self.quit_viewer())
 
-
-        text = """Gestor de ficheros \nSecure Share Model. \n\nGenera el fichero seleccionando un .stl de entrada\n\nCarga el modelo y usa los cursores para rotar la pieza\n[Esc para salir]"""
-
-        label = tk.Label(self, text=text, wraplength=380, justify="center", bd=2, relief="solid", font=("Times New Roman", 18, "bold"))
-        label.pack(pady=20, padx=10)
+        self.bind("<MouseWheel>", lambda event: self.zoom_image(1 if event.delta > 0 else -1))  # Windows y macOS
+        self.bind("<Button-4>", lambda event: self.zoom_image( 1))
+        self.bind("<Button-5>", lambda event: self.zoom_image( -1))
 
     def show_help(self):
         help_window = Toplevel(self)
         help_window.title("Secure Share Model - #I3DM")
-        help_window.geometry("500x300")
+        help_window.geometry("690x280")
+        help_window.resizable(False, False)
         
         help_window.bind('<Escape>', lambda event: help_window.destroy())
 
+        # Columna de la izquierda: Cargar la imagen
         image = Image.open(self.logo_path)
         logo_photo = ImageTk.PhotoImage(image)
         logo_label = tk.Label(help_window, image=logo_photo)
         logo_label.image = logo_photo
-        logo_label.grid(row=1, column=0, padx=10, pady=10, sticky="nw")
-
+        logo_label.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
         
-        help_text = """- Cargar SSM: Abre un archivo SSM.\n- Usa las flechas y W/S\n para rotar la imagen.\n- Pulsa Esc para salir."""
-        help_label = tk.Label(help_window, text=help_text, justify="left", padx=10, pady=10)
-        help_label.grid(row=1, column=1, padx=10, pady=10, sticky="nw")
-
-        help_window.grid_rowconfigure(0, weight=1)
-        help_window.grid_columnconfigure(0, weight=1)
-        help_window.grid_columnconfigure(1, weight=3)
+        # Columna de la derecha: Instrucciones sobre el funcionamiento
+        help_text = """- El menú 'Carga SSM' abre el diseño.\n
+- Los cursores y 'W/S' rotan la pieza en los ejes XYZ.\n
+- La rueda del ratón hace zoom.\n
+- [Esc] cierra la aplicación.\n\n\n\n\n\n
+Autor: Impresión 3D Móstoles\n
+Contacto: impresion3dmostoles@gmail.com\n
+Web: https://mtr.bio/i3dm"""
+        _font = tkFont.Font(family="Console", size=10, weight=tkFont.BOLD)
+        help_label = tk.Label(help_window, text=help_text, justify="left", font=_font, padx=10, pady=10)
+        help_label.grid(row=0, column=1, padx=10, pady=10, sticky="nw")
 
     #Diálogo para la selección de .ssm y extracción de imágenes.,Carga la imagen con coordenadas 0.0.0
     def load_images(self):
         file_path = filedialog.askopenfilename(title="Seleccionar archivo ssm", filetypes=[("Share Model", "*.ssm")])
         self.geometry("1200x800")
         if file_path:
+            self.zoom_factor=1 #reset zoom en inicio
+            self.events=True
             self.extract_images(file_path)
             self.load_image()
     
@@ -148,34 +152,53 @@ class SecureShareModelViewer(tk.Tk):
         filename = self.get_image_filename()
         try:
             image = Image.open(filename)
-            image = image.resize((1200, 800), Image.LANCZOS)
+            image = image.resize((int(1200 * self.zoom_factor), int(800 * self.zoom_factor)), Image.LANCZOS)
             self.photo = ImageTk.PhotoImage(image)
-            self.canvas.create_image(0, 0, anchor="nw", image=self.photo)
+            img_width, img_height = image.size
+
+            canvas_width = self.canvas.winfo_width()
+            canvas_height = self.canvas.winfo_height()
+            x_pos = (canvas_width - img_width) // 2
+            y_pos = (canvas_height - img_height) // 2
+
+            self.canvas.create_image(x_pos, y_pos, anchor="nw", image=self.photo)
             self.title(f"Secure Share Model - #I3DM - Coordenadas: X:{self.x} / Y:{self.y} / Z:{self.z}")
         except Exception as e:
             print(f"No se pudo cargar la imagen: {filename}, error: {e}")
     
     #Cambia las coordenadas según en respuesta al evento de captura de teclas
     def change_image(self, direction):
-        if direction == "left":
-            self.y = (self.y + 45) % 360
-        elif direction == "right":
-            self.y = (self.y - 45) % 360
-        elif direction == "up":
-            self.x = (self.x - 45) % 360
-        elif direction == "down":
-            self.x = (self.x + 45) % 360
-        elif direction == "w":
-            self.z = (self.z + 45) % 360
-        elif direction == "s":
-            self.z = (self.z - 45) % 360
-        self.load_image()
+        if(self.events):
+            if direction == "left":
+                self.y = (self.y + 45) % 360
+            elif direction == "right":
+                self.y = (self.y - 45) % 360
+            elif direction == "up":
+                self.x = (self.x - 45) % 360
+            elif direction == "down":
+                self.x = (self.x + 45) % 360
+            elif direction == "w":
+                self.z = (self.z + 45) % 360
+            elif direction == "s":
+                self.z = (self.z - 45) % 360
+            self.load_image()
 
-    #Cierra la ventana y elimina el directorio temporal
+    # Cierra la ventana y elimina el directorio temporal
     def quit_viewer(self):
         if self.folder_name:
             remove_folder(self.folder_name)
         self.destroy()
+
+    def on_close(self):
+        print("La ventana está cerrándose.")
+        self.quit_viewer()
+        self.destroy()
+
+    # Función para manejar el zoom con la rueda del ratón
+    def zoom_image(self, direction):
+        if(self.events):
+            self.zoom_factor = max(1, self.zoom_factor + 0.1 * direction)
+            self.load_image()
 
 if __name__ == "__main__":
     app = SecureShareModelViewer()
