@@ -6,6 +6,8 @@ De este modo, puedes compartir el modelo con clientes sin necesidad de enviar el
 
 El visualizador proporciona una experiencia interactiva, permitiendo examinar las imágenes y obtener la sensación de estar visualizando el modelo 3D completo. El usuario tiene control sobre la rotación y la perspectiva a través de las imágenes pre-renderizadas.
 
+> **Importante:** Los ficheros **.SSM** generados a partir de esta versión se comprimen utilizando LZMA2, lo que los hace **incompatibles** con versiones anteriores del programa.
+
 ## Información Técnica
 - Desarrollado en **Python** basado en la librería **Open3D**.
 - Entorno virtual con **miniconda**.
@@ -17,11 +19,13 @@ Los compilados de python incluyen en el paquete todas las dependencias. Para ali
 ***
 # Secure Share Model
 
-**Secure Share Model** is a tool designed to facilitate the secure exchange of 3D models. With this application, you can generate **.ssm**sm files, which contain a series of rendered images from different angles of a 3D model.
+**Secure Share Model** is a tool designed to facilitate the secure exchange of 3D models. With this application, you can generate **.ssm** files, which contain a series of rendered images from different angles of a 3D model.
 
 This way, you can share the model with clients without needing to send the original file, thus protecting intellectual property.
 
 The viewer provides an interactive experience, allowing users to examine the images and get the sensation of viewing the complete 3D model. The user has control over rotation and perspective through the pre-rendered images.
+
+> **Important:** The **.SSM** files generated from this version are compressed with LZMA2, making them **incompatible** with previous versions of the program.
 
 ## Información Técnica
 - Developed in **Python** based on the **Open3D** library.
