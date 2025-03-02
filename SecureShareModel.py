@@ -3,8 +3,8 @@ Program Name: Secure Share Model
 Author: Impresión 3D Móstoles
 Social Media: https://mtr.bio/i3dm
 Email: impresion3dmostoles@gmail.com
-Date: 01/02/2025
-Version: 0.20
+Date: 02/03/2025
+Version: 0.30
 License: AGPL v3
 
 *** TIPs ***
