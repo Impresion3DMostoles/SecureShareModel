@@ -4,7 +4,7 @@ Author: Impresión 3D Móstoles
 Social Media: https://mtr.bio/i3dm
 Email: impresion3dmostoles@gmail.com
 Date: 02/03/2025
-Version: 0.30
+Version: 0.31
 License: AGPL v3
 
 *** TIPs ***
