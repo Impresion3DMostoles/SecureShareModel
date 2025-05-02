@@ -21,7 +21,7 @@ Dependencias:
 Compilar:
     conda install pyinstaller
     Linux:
-        pyinstaller --noconfirm --onefile --windowed --clean --optimize "2" --strip --add-data "SSMLogo.png:."  SecureShareModel.py
+        pyinstaller --noconfirm --onefile --windowed --clean --optimize "2" --strip --hidden-import=PIL._tkinter_finder --add-data "SSMLogo.png:."  SecureShareModel.py
     Windows:
         Default: pyinstaller --noconfirm --onefile --windowed --clean --optimize "2" --add-data "SSMLogo.png;." --icon SSMLogo.png SecureShareModel.py
         Reducido: pyinstaller SecureShareModel.spec
