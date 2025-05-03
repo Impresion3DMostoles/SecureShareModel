@@ -36,6 +36,11 @@ The viewer provides an interactive experience, allowing users to examine the ima
 The Python compilations include all dependencies in the package. To reduce the size, modified .spec files are provided for cleaning unused libraries.
 
 ***
+
+![Demo](SSM_Video_Demo.gif)
+
+
+
 ## Credits
 
 - **Author:** [Impresión 3D Móstoles](https://github.com/Impresion3DMostoles)
